@@ -16,7 +16,8 @@ namespace LibraryManagementSystem
 
         private void btnMembers_Click(object sender, EventArgs e)
         {
-            
+            MembersForm membersForm = new MembersForm();
+            membersForm.Show();
         }
 
         private void MainForm_Load(object sender, EventArgs e)

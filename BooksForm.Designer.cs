@@ -78,7 +78,7 @@
             // 
             // txtTitle
             // 
-            txtTitle.Location = new Point(22, 40);
+            txtTitle.Location = new Point(25, 40);
             txtTitle.Name = "txtTitle";
             txtTitle.Size = new Size(200, 27);
             txtTitle.TabIndex = 0;
@@ -86,28 +86,28 @@
             // 
             // txtAuthor
             // 
-            txtAuthor.Location = new Point(242, 40);
+            txtAuthor.Location = new Point(231, 40);
             txtAuthor.Name = "txtAuthor";
             txtAuthor.Size = new Size(200, 27);
             txtAuthor.TabIndex = 1;
             // 
             // txtCategory
             // 
-            txtCategory.Location = new Point(464, 40);
+            txtCategory.Location = new Point(437, 40);
             txtCategory.Name = "txtCategory";
             txtCategory.Size = new Size(150, 27);
             txtCategory.TabIndex = 2;
             // 
             // numQuantity
             // 
-            numQuantity.Location = new Point(635, 40);
+            numQuantity.Location = new Point(593, 40);
             numQuantity.Name = "numQuantity";
             numQuantity.Size = new Size(150, 27);
             numQuantity.TabIndex = 3;
             // 
             // btnAdd
             // 
-            btnAdd.Location = new Point(259, 415);
+            btnAdd.Location = new Point(297, 412);
             btnAdd.Name = "btnAdd";
             btnAdd.Size = new Size(94, 29);
             btnAdd.TabIndex = 2;
@@ -116,7 +116,7 @@
             // 
             // btnUpdate
             // 
-            btnUpdate.Location = new Point(377, 415);
+            btnUpdate.Location = new Point(397, 412);
             btnUpdate.Name = "btnUpdate";
             btnUpdate.Size = new Size(94, 29);
             btnUpdate.TabIndex = 3;
@@ -125,7 +125,7 @@
             // 
             // btnDelete
             // 
-            btnDelete.Location = new Point(497, 415);
+            btnDelete.Location = new Point(497, 412);
             btnDelete.Name = "btnDelete";
             btnDelete.Size = new Size(94, 29);
             btnDelete.TabIndex = 4;
@@ -134,7 +134,7 @@
             // 
             // btnClear
             // 
-            btnClear.Location = new Point(612, 415);
+            btnClear.Location = new Point(597, 412);
             btnClear.Name = "btnClear";
             btnClear.Size = new Size(94, 29);
             btnClear.TabIndex = 5;
@@ -150,9 +150,9 @@
             // 
             // btnSearch
             // 
-            btnSearch.Location = new Point(377, 35);
+            btnSearch.Location = new Point(363, 35);
             btnSearch.Name = "btnSearch";
-            btnSearch.Size = new Size(100, 30);
+            btnSearch.Size = new Size(100, 27);
             btnSearch.TabIndex = 7;
             btnSearch.Text = "Search";
             btnSearch.UseVisualStyleBackColor = true;
@@ -160,7 +160,7 @@
             // cmbCategory
             // 
             cmbCategory.FormattingEnabled = true;
-            cmbCategory.Location = new Point(497, 34);
+            cmbCategory.Location = new Point(729, 35);
             cmbCategory.Name = "cmbCategory";
             cmbCategory.Size = new Size(151, 28);
             cmbCategory.TabIndex = 8;
