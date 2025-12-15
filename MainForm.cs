@@ -20,9 +20,10 @@ namespace LibraryManagementSystem
             membersForm.Show();
         }
 
-        private void MainForm_Load(object sender, EventArgs e)
+        private void btnIssue_Click(object sender, EventArgs e)
         {
-
+            IssueReturnForm issueReturnForm = new IssueReturnForm();
+            issueReturnForm.Show();
         }
     }
 }

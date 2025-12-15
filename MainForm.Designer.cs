@@ -28,22 +28,22 @@
         /// </summary>
         private void InitializeComponent()
         {
-            label1 = new Label();
+            mainLabel = new Label();
             btnBooks = new Button();
             btnMembers = new Button();
             btnIssue = new Button();
             SuspendLayout();
             // 
-            // label1
+            // mainLabel
             // 
-            label1.AutoSize = true;
-            label1.Location = new Point(300, 50);
-            label1.Margin = new Padding(0);
-            label1.Name = "label1";
-            label1.Size = new Size(197, 20);
-            label1.TabIndex = 0;
-            label1.Text = "Library Management System";
-            label1.TextAlign = ContentAlignment.TopCenter;
+            mainLabel.AutoSize = true;
+            mainLabel.Location = new Point(300, 40);
+            mainLabel.Margin = new Padding(0);
+            mainLabel.Name = "mainLabel";
+            mainLabel.Size = new Size(197, 20);
+            mainLabel.TabIndex = 0;
+            mainLabel.Text = "Library Management System";
+            mainLabel.TextAlign = ContentAlignment.TopCenter;
             // 
             // btnBooks
             // 
@@ -73,6 +73,7 @@
             btnIssue.TabIndex = 3;
             btnIssue.Text = "Issue / Return Books";
             btnIssue.UseVisualStyleBackColor = true;
+            btnIssue.Click += btnIssue_Click;
             // 
             // MainForm
             // 
@@ -81,18 +82,17 @@
             ClientSize = new Size(782, 453);
             Controls.Add(btnIssue);
             Controls.Add(btnMembers);
-            Controls.Add(label1);
+            Controls.Add(mainLabel);
             Controls.Add(btnBooks);
             Name = "MainForm";
             Text = "MainForm";
-            Load += MainForm_Load;
             ResumeLayout(false);
             PerformLayout();
         }
 
         #endregion
 
-        private Label label1;
+        private Label mainLabel;
         private Button btnMembers;
         private Button btnIssue;
         private Button btnBooks;
