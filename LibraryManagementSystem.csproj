@@ -8,4 +8,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Bet.Extensions.Resilience.Data.SqlClient" Version="2.1.5" />
+  </ItemGroup>
+
 </Project>
