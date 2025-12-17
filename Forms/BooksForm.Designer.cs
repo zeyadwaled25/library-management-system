@@ -60,6 +60,7 @@
             dgvBooks.RowHeadersWidth = 51;
             dgvBooks.Size = new Size(803, 188);
             dgvBooks.TabIndex = 0;
+            dgvBooks.CellContentClick += dgvBooks_CellContentClick;
             // 
             // grpBookDetails
             // 
@@ -73,6 +74,7 @@
             grpBookDetails.TabIndex = 1;
             grpBookDetails.TabStop = false;
             grpBookDetails.Text = "Book Details";
+            grpBookDetails.Enter += grpBookDetails_Enter;
             // 
             // txtTitle
             // 
@@ -80,6 +82,7 @@
             txtTitle.Name = "txtTitle";
             txtTitle.Size = new Size(200, 27);
             txtTitle.TabIndex = 0;
+            txtTitle.TextChanged += txtTitle_TextChanged;
             // 
             // txtAuthor
             // 
