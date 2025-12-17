@@ -1,7 +1,8 @@
 using System;
 using System.Data;
-using Microsoft.Data.SqlClient;
 using System.Windows.Forms;
+using Microsoft.Data.SqlClient;
+using LibraryManagementSystem.Data;
 
 namespace LibraryManagementSystem
 {
@@ -19,23 +20,13 @@ namespace LibraryManagementSystem
             LoadMembers();
         }
 
-        
         void LoadMembers()
         {
             try
             {
-                using (SqlConnection con = new SqlConnection(
-                    "Data Source=localhost;Initial Catalog=LibraryDB;Integrated Security=True;Encrypt=False;TrustServerCertificate=True"))
-                {
-                    con.Open();
-                    SqlDataAdapter da = new SqlDataAdapter(
-                        "SELECT MemberID, FullName, Phone, Email FROM Members", con);
-
-                    DataTable dt = new DataTable();
-                    da.Fill(dt);
-                    //dataGridView1.AutoGenerateColumns = true;
-                    dataGridView1.DataSource = dt;
-                }
+                string query = "SELECT MemberID, FullName, Phone, Email FROM Members";
+                DataTable dt = DatabaseHelper.ExecuteSelect(query);
+                dataGridView1.DataSource = dt;
             }
             catch (Exception ex)
             {
@@ -43,45 +34,35 @@ namespace LibraryManagementSystem
             }
         }
 
-        
         private void btnAdd_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(txtFullName.Text) ||
                 string.IsNullOrWhiteSpace(txtPhone.Text) ||
                 string.IsNullOrWhiteSpace(txtEmail.Text))
             {
-                MessageBox.Show("Please fill all fields before adding a member.");
+                MessageBox.Show("Please fill all fields.");
                 return;
             }
 
-            string query = "INSERT INTO Members (FullName, Phone, Email) VALUES (@FullName, @Phone, @Email)";
+            string query =
+                "INSERT INTO Members (FullName, Phone, Email) VALUES (@FullName, @Phone, @Email)";
+
+            SqlParameter[] parameters =
+            {
+                new SqlParameter("@FullName", SqlDbType.NVarChar, 100) { Value = txtFullName.Text },
+                new SqlParameter("@Phone", SqlDbType.NVarChar, 20) { Value = txtPhone.Text },
+                new SqlParameter("@Email", SqlDbType.NVarChar, 50) { Value = txtEmail.Text }
+            };
 
             try
             {
-                using (SqlConnection con = new SqlConnection(
-                    "Data Source=localhost;Initial Catalog=LibraryDB;Integrated Security=True;Encrypt=False;TrustServerCertificate=True"))
+                int rows = DatabaseHelper.ExecuteNonQuery(query, parameters);
+
+                if (rows > 0)
                 {
-                    using (SqlCommand cmd = new SqlCommand(query, con))
-                    {
-                        cmd.Parameters.Add("@FullName", SqlDbType.NVarChar, 100).Value = txtFullName.Text;
-                        cmd.Parameters.Add("@Phone", SqlDbType.NVarChar, 20).Value = txtPhone.Text;
-                        cmd.Parameters.Add("@Email", SqlDbType.NVarChar, 50).Value = txtEmail.Text;
-
-                        con.Open();
-                        int rows = cmd.ExecuteNonQuery();
-                        con.Close();
-
-                        if (rows > 0)
-                        {
-                            MessageBox.Show("Member added successfully!");
-                            LoadMembers();
-                            ClearFields();
-                        }
-                        else
-                        {
-                            MessageBox.Show("No member was added.");
-                        }
-                    }
+                    MessageBox.Show("Member added successfully!");
+                    LoadMembers();
+                    ClearFields();
                 }
             }
             catch (Exception ex)
@@ -90,34 +71,34 @@ namespace LibraryManagementSystem
             }
         }
 
-        
+      
         private void btnUpdate_Click(object sender, EventArgs e)
         {
-            if (memberId == 0) return;
+            if (memberId == 0)
+            {
+                MessageBox.Show("Please select a member first.");
+                return;
+            }
 
-            string query = "UPDATE Members SET FullName=@FullName, Phone=@Phone, Email=@Email WHERE MemberID=@id";
+            string query =
+                @"UPDATE Members 
+                  SET FullName=@FullName, Phone=@Phone, Email=@Email
+                  WHERE MemberID=@id";
+
+            SqlParameter[] parameters =
+            {
+                new SqlParameter("@FullName", SqlDbType.NVarChar, 100) { Value = txtFullName.Text },
+                new SqlParameter("@Phone", SqlDbType.NVarChar, 20) { Value = txtPhone.Text },
+                new SqlParameter("@Email", SqlDbType.NVarChar, 50) { Value = txtEmail.Text },
+                new SqlParameter("@id", SqlDbType.Int) { Value = memberId }
+            };
 
             try
             {
-                using (SqlConnection con = new SqlConnection(
-                    "Data Source=localhost;Initial Catalog=LibraryDB;Integrated Security=True;Encrypt=False;TrustServerCertificate=True"))
-                {
-                    using (SqlCommand cmd = new SqlCommand(query, con))
-                    {
-                        cmd.Parameters.Add("@FullName", SqlDbType.NVarChar, 100).Value = txtFullName.Text;
-                        cmd.Parameters.Add("@Phone", SqlDbType.NVarChar, 20).Value = txtPhone.Text;
-                        cmd.Parameters.Add("@Email", SqlDbType.NVarChar, 50).Value = txtEmail.Text;
-                        cmd.Parameters.Add("@id", SqlDbType.Int).Value = memberId;
-
-                        con.Open();
-                        cmd.ExecuteNonQuery();
-                        con.Close();
-
-                        LoadMembers();
-                        ClearFields();
-                        MessageBox.Show("Member updated successfully!");
-                    }
-                }
+                DatabaseHelper.ExecuteNonQuery(query, parameters);
+                LoadMembers();
+                ClearFields();
+                MessageBox.Show("Member updated successfully!");
             }
             catch (Exception ex)
             {
@@ -125,31 +106,28 @@ namespace LibraryManagementSystem
             }
         }
 
-        
+       
         private void btnDelete_Click(object sender, EventArgs e)
         {
-            if (memberId == 0) return;
+            if (memberId == 0)
+            {
+                MessageBox.Show("Please select a member first.");
+                return;
+            }
 
             string query = "DELETE FROM Members WHERE MemberID=@id";
 
+            SqlParameter[] parameters =
+            {
+                new SqlParameter("@id", SqlDbType.Int) { Value = memberId }
+            };
+
             try
             {
-                using (SqlConnection con = new SqlConnection(
-                    "Data Source=localhost;Initial Catalog=LibraryDB;Integrated Security=True;Encrypt=False;TrustServerCertificate=True"))
-                {
-                    using (SqlCommand cmd = new SqlCommand(query, con))
-                    {
-                        cmd.Parameters.Add("@id", SqlDbType.Int).Value = memberId;
-
-                        con.Open();
-                        cmd.ExecuteNonQuery();
-                        con.Close();
-
-                        LoadMembers();
-                        ClearFields();
-                        MessageBox.Show("Member deleted successfully!");
-                    }
-                }
+                DatabaseHelper.ExecuteNonQuery(query, parameters);
+                LoadMembers();
+                ClearFields();
+                MessageBox.Show("Member deleted successfully!");
             }
             catch (Exception ex)
             {
@@ -157,18 +135,18 @@ namespace LibraryManagementSystem
             }
         }
 
-        
+     
         private void dataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0) return;
 
-            memberId = Convert.ToInt32(dataGridView1.Rows[e.RowIndex].Cells[0].Value);
-            txtFullName.Text = dataGridView1.Rows[e.RowIndex].Cells[1].Value.ToString();
-            txtPhone.Text = dataGridView1.Rows[e.RowIndex].Cells[2].Value.ToString();
-            txtEmail.Text = dataGridView1.Rows[e.RowIndex].Cells[3].Value.ToString();
+            memberId = Convert.ToInt32(dataGridView1.Rows[e.RowIndex].Cells["MemberID"].Value);
+            txtFullName.Text = dataGridView1.Rows[e.RowIndex].Cells["FullName"].Value.ToString();
+            txtPhone.Text = dataGridView1.Rows[e.RowIndex].Cells["Phone"].Value.ToString();
+            txtEmail.Text = dataGridView1.Rows[e.RowIndex].Cells["Email"].Value.ToString();
         }
 
-        
+     
         void ClearFields()
         {
             txtFullName.Clear();
