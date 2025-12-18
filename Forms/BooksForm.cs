@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using System.Data;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using LibraryManagementSystem.Models;
 using LibraryManagementSystem.Repositories;
@@ -27,7 +25,7 @@ namespace LibraryManagementSystem
             this.cmbFilterCategory.SelectedIndexChanged += cmbFilterCategory_SelectedIndexChanged;
         }
 
-        private async void BooksForm_Load(object sender, EventArgs e)
+        private void BooksForm_Load(object sender, EventArgs e)
         {
             SetupGrid();
             await LoadCategoriesAsync();
@@ -125,9 +123,49 @@ namespace LibraryManagementSystem
             }
 
             ClearFields();
+            LoadCategories();
+            LoadBooks();
+            UpdateButtonsState();
         }
 
-        private async void btnUpdate_Click(object sender, EventArgs e)
+        void SetupGrid()
+        {
+            dgvBooks.AutoGenerateColumns = false;
+            dgvBooks.Columns.Clear();
+
+            dgvBooks.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                HeaderText = "ID",
+                DataPropertyName = "BookID",
+                Visible = false
+            });
+
+            dgvBooks.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                HeaderText = "Title",
+                DataPropertyName = "Title"
+            });
+
+            dgvBooks.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                HeaderText = "Author",
+                DataPropertyName = "Author"
+            });
+
+            dgvBooks.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                HeaderText = "Category",
+                DataPropertyName = "Category"
+            });
+
+            dgvBooks.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                HeaderText = "Quantity",
+                DataPropertyName = "Quantity"
+            });
+        }
+
+        void LoadBooks()
         {
             if (selectedBookId == 0) return;
             if (!ValidateInputs()) return;
@@ -151,10 +189,36 @@ namespace LibraryManagementSystem
                 await LoadCategoriesAsync();
             }
 
+            dgvBooks.DataSource = _repo.GetAll();
+        }
+
+        void LoadCategories()
+        {
+            DataTable dt = _repo.GetCategories();
+
+            cmbCategory.DataSource = dt;
+            cmbCategory.DisplayMember = "CategoryName";
+            cmbCategory.ValueMember = "CategoryID";
+            cmbCategory.SelectedIndex = -1;
+        }
+
+        private void btnAdd_Click(object sender, EventArgs e)
+        {
+            if (!ValidateInputs()) return;
+
+            _repo.Add(new Book
+            {
+                Title = txtTitle.Text.Trim(),
+                Author = txtAuthor.Text.Trim(),
+                CategoryID = (int)cmbCategory.SelectedValue,
+                Quantity = int.Parse(numQuantity.Text)
+            });
+
+            LoadBooks();
             ClearFields();
         }
 
-        private async void btnDelete_Click(object sender, EventArgs e)
+        private void btnUpdate_Click(object sender, EventArgs e)
         {
             if (selectedBookId == 0) return;
 
@@ -168,10 +232,21 @@ namespace LibraryManagementSystem
 
             await _repo.DeleteBookAsync(selectedBookId);
             await LoadBooksAsync();
+
+            _repo.Update(new Book
+            {
+                BookID = selectedBookId,
+                Title = txtTitle.Text.Trim(),
+                Author = txtAuthor.Text.Trim(),
+                CategoryID = (int)cmbCategory.SelectedValue,
+                Quantity = int.Parse(numQuantity.Text)
+            });
+
+            LoadBooks();
             ClearFields();
         }
 
-        private void dgvBooks_CellClick(object sender, DataGridViewCellEventArgs e)
+        private void btnDelete_Click(object sender, EventArgs e)
         {
             if (e.RowIndex < 0 || e.RowIndex >= dgvBooks.Rows.Count) return;
 
@@ -202,6 +277,36 @@ namespace LibraryManagementSystem
             }
         }
 
+            if (selectedBookId == 0) return;
+
+            var confirm = MessageBox.Show(
+                "Are you sure you want to delete this book?",
+                "Confirm Delete",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning);
+
+            if (confirm != DialogResult.Yes) return;
+
+            _repo.Delete(selectedBookId);
+            LoadBooks();
+            ClearFields();
+        }
+
+        private void dgvBooks_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+
+            var row = dgvBooks.Rows[e.RowIndex];
+
+            selectedBookId = Convert.ToInt32(row.Cells["ID"].Value);
+            txtTitle.Text = row.Cells["Title"].Value.ToString();
+            txtAuthor.Text = row.Cells["Author"].Value.ToString();
+            numQuantity.Text = row.Cells["Quantity"].Value.ToString();
+            cmbCategory.Text = row.Cells["Category"].Value.ToString();
+
+            UpdateButtonsState();
+        }
+
         private void txtSearch_TextChanged(object sender, EventArgs e)
         {
             ApplySearch();
@@ -227,6 +332,18 @@ namespace LibraryManagementSystem
                 string cat = cmbFilterCategory.Text.Replace("'", "''");
                 string catFilter = $"Category LIKE '{cat}'";
                 filter = filter == "" ? catFilter : $"({filter}) AND {catFilter}";
+            }
+
+            string search = txtSearch.Text.Replace("'", "''");
+            string filter = "";
+
+            if (!string.IsNullOrWhiteSpace(search))
+                filter = $"Title LIKE '%{search}%' OR Author LIKE '%{search}%'";
+
+            if (cmbCategory.SelectedIndex != -1)
+            {
+                string cat = cmbCategory.Text.Replace("'", "''");
+                filter += (filter == "" ? "" : " AND ") + $"Category LIKE '{cat}%'";
             }
 
             dt.DefaultView.RowFilter = filter;
@@ -262,6 +379,7 @@ namespace LibraryManagementSystem
             if (string.IsNullOrWhiteSpace(txtTitle.Text) ||
                 string.IsNullOrWhiteSpace(txtAuthor.Text) ||
                 string.IsNullOrWhiteSpace(cmbCategory.Text) ||
+                cmbCategory.SelectedIndex == -1 ||
                 !int.TryParse(numQuantity.Text, out _))
             {
                 MessageBox.Show("Please fill all fields correctly",

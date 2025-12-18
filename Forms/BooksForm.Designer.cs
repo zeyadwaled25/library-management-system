@@ -1,4 +1,4 @@
-﻿namespace LibraryManagementSystem
+namespace LibraryManagementSystem
 {
     partial class BooksForm
     {
@@ -125,6 +125,7 @@
             dgvBooks.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvBooks.Size = new Size(900, 260);
             dgvBooks.TabIndex = 2;
+            dgvBooks.CellClick += dgvBooks_CellClick;
             // 
             // BookId
             // 

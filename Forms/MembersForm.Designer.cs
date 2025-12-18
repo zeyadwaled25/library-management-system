@@ -35,6 +35,8 @@ namespace LibraryManagementSystem
             panelButtons.SuspendLayout();
             SuspendLayout();
             // 
+            // lblHeader
+            // 
             lblHeader.Dock = DockStyle.Top;
             lblHeader.Font = new Font("Segoe UI", 16F, FontStyle.Bold);
             lblHeader.ForeColor = Color.Black;
@@ -45,6 +47,8 @@ namespace LibraryManagementSystem
             lblHeader.Text = "Members Management";
             lblHeader.TextAlign = ContentAlignment.MiddleCenter;
             // 
+            // panelSearch
+            // 
             panelSearch.Controls.Add(lblSearch);
             panelSearch.Controls.Add(txtSearch);
             panelSearch.Dock = DockStyle.Top;
@@ -54,6 +58,8 @@ namespace LibraryManagementSystem
             panelSearch.Size = new Size(900, 55);
             panelSearch.TabIndex = 3;
             // 
+            // lblSearch
+            // 
             lblSearch.AutoSize = true;
             lblSearch.Location = new Point(15, 18);
             lblSearch.Name = "lblSearch";
@@ -61,12 +67,16 @@ namespace LibraryManagementSystem
             lblSearch.TabIndex = 0;
             lblSearch.Text = "Search:";
             // 
+            // txtSearch
+            // 
             txtSearch.Location = new Point(80, 14);
             txtSearch.Name = "txtSearch";
             txtSearch.PlaceholderText = "Search by name or phone...";
             txtSearch.Size = new Size(300, 27);
             txtSearch.TabIndex = 1;
             txtSearch.TextChanged += txtSearch_TextChanged;
+            // 
+            // dgvMembers
             // 
             dgvMembers.AllowUserToAddRows = false;
             dgvMembers.AllowUserToDeleteRows = false;
@@ -83,6 +93,8 @@ namespace LibraryManagementSystem
             dgvMembers.TabIndex = 2;
             dgvMembers.CellClick += dgvMembers_CellClick;
             // 
+            // grpMemberDetails
+            // 
             grpMemberDetails.Controls.Add(txtFullName);
             grpMemberDetails.Controls.Add(txtPhone);
             grpMemberDetails.Controls.Add(txtEmail);
@@ -94,11 +106,15 @@ namespace LibraryManagementSystem
             grpMemberDetails.TabStop = false;
             grpMemberDetails.Text = "Member Details";
             // 
+            // txtFullName
+            // 
             txtFullName.Location = new Point(20, 45);
             txtFullName.Name = "txtFullName";
             txtFullName.PlaceholderText = "Full Name";
             txtFullName.Size = new Size(220, 27);
             txtFullName.TabIndex = 0;
+            // 
+            // txtPhone
             // 
             txtPhone.Location = new Point(260, 45);
             txtPhone.Name = "txtPhone";
@@ -106,11 +122,15 @@ namespace LibraryManagementSystem
             txtPhone.Size = new Size(160, 27);
             txtPhone.TabIndex = 1;
             // 
+            // txtEmail
+            // 
             txtEmail.Location = new Point(440, 45);
             txtEmail.Name = "txtEmail";
             txtEmail.PlaceholderText = "Email";
             txtEmail.Size = new Size(260, 27);
             txtEmail.TabIndex = 2;
+            // 
+            // panelButtons
             // 
             panelButtons.Controls.Add(btnAdd);
             panelButtons.Controls.Add(btnUpdate);
@@ -121,6 +141,8 @@ namespace LibraryManagementSystem
             panelButtons.Padding = new Padding(10);
             panelButtons.Size = new Size(900, 73);
             panelButtons.TabIndex = 0;
+            // 
+            // btnAdd
             // 
             btnAdd.BackColor = Color.FromArgb(40, 167, 69);
             btnAdd.FlatStyle = FlatStyle.Flat;
@@ -133,6 +155,8 @@ namespace LibraryManagementSystem
             btnAdd.UseVisualStyleBackColor = false;
             btnAdd.Click += btnAdd_Click;
             // 
+            // btnUpdate
+            // 
             btnUpdate.BackColor = Color.FromArgb(0, 123, 255);
             btnUpdate.FlatStyle = FlatStyle.Flat;
             btnUpdate.ForeColor = Color.White;
@@ -143,6 +167,8 @@ namespace LibraryManagementSystem
             btnUpdate.Text = "Update";
             btnUpdate.UseVisualStyleBackColor = false;
             btnUpdate.Click += btnUpdate_Click;
+            // 
+            // btnDelete
             // 
             btnDelete.BackColor = Color.FromArgb(220, 53, 69);
             btnDelete.FlatStyle = FlatStyle.Flat;
@@ -155,6 +181,8 @@ namespace LibraryManagementSystem
             btnDelete.UseVisualStyleBackColor = false;
             btnDelete.Click += btnDelete_Click;
             // 
+            // btnClear
+            // 
             btnClear.BackColor = Color.Gray;
             btnClear.FlatStyle = FlatStyle.Flat;
             btnClear.ForeColor = Color.White;
@@ -165,6 +193,8 @@ namespace LibraryManagementSystem
             btnClear.Text = "Clear";
             btnClear.UseVisualStyleBackColor = false;
             btnClear.Click += btnClear_Click;
+            // 
+            // MembersForm
             // 
             ClientSize = new Size(900, 550);
             Controls.Add(panelButtons);
