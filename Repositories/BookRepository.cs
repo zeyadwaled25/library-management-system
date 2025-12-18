@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration; 
 using System.Data;
-using System.Data.SqlClient;
 using System.Threading.Tasks;
 using LibraryManagementSystem.Models;
 using Microsoft.Data.SqlClient;
@@ -10,7 +10,13 @@ namespace LibraryManagementSystem.Repositories
 {
     public class BookRepository
     {
-        private readonly string _connectionString = "Data Source=.;Initial Catalog=LibraryDB;Integrated Security=True;TrustServerCertificate=True";
+        private readonly string _connectionString;
+
+        public BookRepository()
+        {
+
+            _connectionString = ConfigurationManager.ConnectionStrings["LibraryDb"].ConnectionString;
+        }
 
         public async Task<List<CategoryItem>> GetCategoriesAsync()
         {
@@ -41,8 +47,8 @@ namespace LibraryManagementSystem.Repositories
         {
             using (SqlConnection con = new SqlConnection(_connectionString))
             {
-                string query = @"INSERT INTO Books (Title, Author, Publisher, CategoryID, Quantity, Price) 
-                                 VALUES (@Title, @Author, @Publisher, @CatID, @Qty, @Price)";
+                string query = @"INSERT INTO Books (Title, Author, CategoryID, Quantity) 
+                                 VALUES (@Title, @Author, @CatID, @Qty)";
 
                 using (SqlCommand cmd = new SqlCommand(query, con))
                 {
@@ -68,9 +74,8 @@ namespace LibraryManagementSystem.Repositories
                         B.Title, 
                         B.Author, 
                         C.CategoryName AS Category, 
-                        B.CategoryID,  -- بنحتاجه عشان لما نختار الكتاب نحدد التصنيف صح
-                        B.Quantity, 
-                        B.Price 
+                        B.CategoryID, 
+                        B.Quantity
                     FROM Books B
                     INNER JOIN Categories C ON B.CategoryID = C.CategoryID";
 
