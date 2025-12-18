@@ -86,7 +86,6 @@
             txtSearch.PlaceholderText = "Search by Title or Author...";
             txtSearch.Size = new Size(300, 27);
             txtSearch.TabIndex = 1;
-            txtSearch.TextChanged += txtSearch_TextChanged;
             // 
             // dgvBooks
             // 
@@ -203,7 +202,6 @@
             cmbCategory.Name = "cmbCategory";
             cmbCategory.Size = new Size(200, 28);
             cmbCategory.TabIndex = 2;
-            cmbCategory.SelectedIndexChanged += cmbCategory_SelectedIndexChanged;
             // 
             // numQuantity
             // 
@@ -252,7 +250,6 @@
             btnAdd.TabIndex = 0;
             btnAdd.Text = "Add";
             btnAdd.UseVisualStyleBackColor = false;
-            btnAdd.Click += btnAdd_Click;
             // 
             // btnUpdate
             // 
@@ -265,7 +262,6 @@
             btnUpdate.TabIndex = 1;
             btnUpdate.Text = "Update";
             btnUpdate.UseVisualStyleBackColor = false;
-            btnUpdate.Click += btnUpdate_Click;
             // 
             // btnDelete
             // 
@@ -278,7 +274,6 @@
             btnDelete.TabIndex = 2;
             btnDelete.Text = "Delete";
             btnDelete.UseVisualStyleBackColor = false;
-            btnDelete.Click += btnDelete_Click;
             // 
             // btnClear
             // 
@@ -291,7 +286,6 @@
             btnClear.TabIndex = 3;
             btnClear.Text = "Clear";
             btnClear.UseVisualStyleBackColor = false;
-            btnClear.Click += btnClear_Click;
             // 
             // BooksForm
             // 
@@ -306,7 +300,6 @@
             Name = "BooksForm";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Books Management";
-            Load += BooksForm_Load;
             panelSearch.ResumeLayout(false);
             panelSearch.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)dgvBooks).EndInit();
@@ -342,5 +335,7 @@
         private DataGridViewTextBoxColumn Author;
         private DataGridViewTextBoxColumn Category;
         private DataGridViewTextBoxColumn Quantity;
+        private ComboBox cmbFilterCategory;
+        private Label lblFilterCategory;
     }
 }
