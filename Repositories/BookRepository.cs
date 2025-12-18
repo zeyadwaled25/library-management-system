@@ -1,134 +1,133 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration; 
 using System.Data;
 using System.Threading.Tasks;
-using LibraryManagementSystem.Models;
 using Microsoft.Data.SqlClient;
+using LibraryManagementSystem.Data;
+using LibraryManagementSystem.Models;
 
 namespace LibraryManagementSystem.Repositories
 {
     public class BookRepository
     {
-        private readonly string _connectionString;
-
-        public BookRepository()
-        {
-
-            _connectionString = ConfigurationManager.ConnectionStrings["LibraryDb"].ConnectionString;
-        }
-
-        public async Task<List<CategoryItem>> GetCategoriesAsync()
-        {
-            var list = new List<CategoryItem>();
-            using (SqlConnection con = new SqlConnection(_connectionString))
-            {
-                string query = "SELECT CategoryID, CategoryName FROM Categories";
-                using (SqlCommand cmd = new SqlCommand(query, con))
-                {
-                    await con.OpenAsync();
-                    using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
-                    {
-                        while (await reader.ReadAsync())
-                        {
-                            list.Add(new CategoryItem
-                            {
-                                ID = (int)reader["CategoryID"],
-                                Name = reader["CategoryName"].ToString()
-                            });
-                        }
-                    }
-                }
-            }
-            return list;
-        }
-
-        public async Task AddBookAsync(Book book)
-        {
-            using (SqlConnection con = new SqlConnection(_connectionString))
-            {
-                string query = @"INSERT INTO Books (Title, Author, CategoryID, Quantity) 
-                                 VALUES (@Title, @Author, @CatID, @Qty)";
-
-                using (SqlCommand cmd = new SqlCommand(query, con))
-                {
-                    cmd.Parameters.AddWithValue("@Title", book.Title);
-                    cmd.Parameters.AddWithValue("@Author", book.Author);
-                    cmd.Parameters.AddWithValue("@CatID", book.CategoryID);
-                    cmd.Parameters.AddWithValue("@Qty", book.Quantity);
-
-                    await con.OpenAsync();
-                    await cmd.ExecuteNonQueryAsync();
-                }
-            }
-        }
-
         public async Task<DataTable> GetAllBooksAsync()
         {
-            DataTable dt = new DataTable();
-            using (SqlConnection con = new SqlConnection(_connectionString))
+            return await Task.Run(() =>
             {
                 string query = @"
                     SELECT 
-                        B.BookID, 
-                        B.Title, 
-                        B.Author, 
-                        C.CategoryName AS Category, 
-                        B.CategoryID, 
+                        B.BookID,
+                        B.Title,
+                        B.Author,
+                        C.CategoryName AS Category,
+                        B.CategoryID,
                         B.Quantity
                     FROM Books B
                     INNER JOIN Categories C ON B.CategoryID = C.CategoryID";
 
-                using (SqlCommand cmd = new SqlCommand(query, con))
+                return DatabaseHelper.ExecuteSelect(query);
+            });
+        }
+
+        public async Task<List<CategoryItem>> GetCategoriesAsync()
+        {
+            return await Task.Run(() =>
+            {
+                var list = new List<CategoryItem>();
+                string query = "SELECT CategoryID, CategoryName FROM Categories";
+
+                DataTable dt = DatabaseHelper.ExecuteSelect(query);
+
+                foreach (DataRow row in dt.Rows)
                 {
-                    await con.OpenAsync();
-                    using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
+                    list.Add(new CategoryItem
                     {
-                        dt.Load(reader);
-                    }
+                        ID = Convert.ToInt32(row["CategoryID"]),
+                        Name = row["CategoryName"].ToString()
+                    });
                 }
-            }
-            return dt;
+
+                return list;
+            });
+        }
+
+        public async Task AddBookAsync(Book book)
+        {
+            await Task.Run(() =>
+            {
+                string query = @"
+                    INSERT INTO Books (Title, Author, CategoryID, Quantity)
+                    VALUES (@Title, @Author, @CatID, @Qty)";
+
+                SqlParameter[] p =
+                {
+                    new("@Title", book.Title),
+                    new("@Author", book.Author),
+                    new("@CatID", book.CategoryID),
+                    new("@Qty", book.Quantity)
+                };
+
+                DatabaseHelper.ExecuteNonQuery(query, p);
+            });
         }
 
         public async Task UpdateBookAsync(Book book)
         {
-            using (SqlConnection con = new SqlConnection(_connectionString))
+            await Task.Run(() =>
             {
-                string query = @"UPDATE Books 
-                                 SET Title = @Title, 
-                                     Author = @Author, 
-                                     CategoryID = @CatID, 
-                                     Quantity = @Qty
-                                 WHERE BookID = @Id";
+                string query = @"
+                    UPDATE Books
+                    SET 
+                        Title = @Title,
+                        Author = @Author,
+                        CategoryID = @CatID,
+                        Quantity = @Qty
+                    WHERE BookID = @Id";
 
-                using (SqlCommand cmd = new SqlCommand(query, con))
+                SqlParameter[] p =
                 {
-                    cmd.Parameters.AddWithValue("@Id", book.BookID);
-                    cmd.Parameters.AddWithValue("@Title", book.Title);
-                    cmd.Parameters.AddWithValue("@Author", book.Author);
-                    cmd.Parameters.AddWithValue("@CatID", book.CategoryID);
-                    cmd.Parameters.AddWithValue("@Qty", book.Quantity);
+                    new("@Title", book.Title),
+                    new("@Author", book.Author),
+                    new("@CatID", book.CategoryID),
+                    new("@Qty", book.Quantity),
+                    new("@Id", book.BookID)
+                };
 
-                    await con.OpenAsync();
-                    await cmd.ExecuteNonQueryAsync();
-                }
-            }
+                DatabaseHelper.ExecuteNonQuery(query, p);
+            });
         }
 
-        public async Task DeleteBookAsync(int bookId)
+        public async Task DeleteBookAsync(int id)
         {
-            using (SqlConnection con = new SqlConnection(_connectionString))
+            await Task.Run(() =>
             {
                 string query = "DELETE FROM Books WHERE BookID = @Id";
+                SqlParameter[] p = { new("@Id", id) };
 
-                using (SqlCommand cmd = new SqlCommand(query, con))
+                DatabaseHelper.ExecuteNonQuery(query, p);
+            });
+        }
+
+        public async Task<int> AddCategoryAsync(string categoryName)
+        {
+            return await Task.Run(() =>
+            {
+                string checkQuery = "SELECT CategoryID FROM Categories WHERE CategoryName = @Name";
+                SqlParameter[] pCheck = { new("@Name", categoryName) };
+
+                object result = DatabaseHelper.ExecuteScalar(checkQuery, pCheck);
+
+                if (result != null && result != DBNull.Value)
                 {
-                    cmd.Parameters.AddWithValue("@Id", bookId);
-                    await con.OpenAsync();
-                    await cmd.ExecuteNonQueryAsync();
+                    return Convert.ToInt32(result);
                 }
-            }
+
+                string insertQuery = "INSERT INTO Categories (CategoryName) VALUES (@Name); SELECT SCOPE_IDENTITY();";
+                SqlParameter[] pInsert = { new("@Name", categoryName) };
+
+                object newId = DatabaseHelper.ExecuteScalar(insertQuery, pInsert);
+                return Convert.ToInt32(newId);
+            });
         }
     }
 }

@@ -5,6 +5,7 @@ using Microsoft.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Configuration;
 
 namespace LibraryManagementSystem.Data
 {
@@ -12,11 +13,7 @@ namespace LibraryManagementSystem.Data
     {
 
         private static readonly string connectionString =
-            "Data Source=SOCIETY\\SQLEXPRESS;" +
-            "Initial Catalog=LibraryDB;" +
-            "Integrated Security=True;" +
-            "TrustServerCertificate=True;" +
-            "Encrypt=False;";
+            ConfigurationManager.ConnectionStrings["LibraryDb"].ConnectionString;
 
         public static SqlConnection GetConnection()
         {

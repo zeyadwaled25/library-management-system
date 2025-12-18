@@ -19,7 +19,8 @@
         {
             lblHeader = new Label();
             panelSearch = new Panel();
-            btnSearch = new Button();
+            cmbFilterCategory = new ComboBox();
+            lblFilterCategory = new Label();
             lblSearch = new Label();
             txtSearch = new TextBox();
             dgvBooks = new DataGridView();
@@ -62,7 +63,8 @@
             // 
             // panelSearch
             // 
-            panelSearch.Controls.Add(btnSearch);
+            panelSearch.Controls.Add(cmbFilterCategory);
+            panelSearch.Controls.Add(lblFilterCategory);
             panelSearch.Controls.Add(lblSearch);
             panelSearch.Controls.Add(txtSearch);
             panelSearch.Dock = DockStyle.Top;
@@ -72,15 +74,23 @@
             panelSearch.Size = new Size(900, 55);
             panelSearch.TabIndex = 1;
             // 
-            // btnSearch
+            // cmbFilterCategory
             // 
-            btnSearch.Location = new Point(390, 14);
-            btnSearch.Name = "btnSearch";
-            btnSearch.Size = new Size(94, 29);
-            btnSearch.TabIndex = 2;
-            btnSearch.Text = "Search";
-            btnSearch.UseVisualStyleBackColor = true;
-            btnSearch.Click += btnSearch_Click;
+            cmbFilterCategory.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbFilterCategory.FormattingEnabled = true;
+            cmbFilterCategory.Location = new Point(550, 14);
+            cmbFilterCategory.Name = "cmbFilterCategory";
+            cmbFilterCategory.Size = new Size(200, 28);
+            cmbFilterCategory.TabIndex = 3;
+            // 
+            // lblFilterCategory
+            // 
+            lblFilterCategory.AutoSize = true;
+            lblFilterCategory.Location = new Point(420, 18);
+            lblFilterCategory.Name = "lblFilterCategory";
+            lblFilterCategory.Size = new Size(125, 20);
+            lblFilterCategory.TabIndex = 2;
+            lblFilterCategory.Text = "Filter by Category:";
             // 
             // lblSearch
             // 
@@ -115,8 +125,6 @@
             dgvBooks.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvBooks.Size = new Size(900, 260);
             dgvBooks.TabIndex = 2;
-            dgvBooks.CellClick += dgvBooks_CellClick;
-            dgvBooks.CellContentClick += dgvBooks_CellContentClick;
             // 
             // BookId
             // 
@@ -171,7 +179,6 @@
             grpBookDetails.TabIndex = 3;
             grpBookDetails.TabStop = false;
             grpBookDetails.Text = "Book Details";
-            grpBookDetails.Enter += grpBookDetails_Enter;
             // 
             // lblQuantity
             // 
@@ -240,7 +247,6 @@
             txtTitle.PlaceholderText = "Book Title";
             txtTitle.Size = new Size(200, 27);
             txtTitle.TabIndex = 0;
-            txtTitle.TextChanged += txtTitle_TextChanged;
             // 
             // panelButtons
             // 
@@ -330,7 +336,6 @@
         private Panel panelSearch;
         private Label lblSearch;
         private TextBox txtSearch;
-        private Button btnSearch;
         private DataGridView dgvBooks;
         private GroupBox grpBookDetails;
         private TextBox txtTitle;
