@@ -248,7 +248,7 @@ namespace LibraryManagementSystem
             ApplySearch();
         }
 
-        private void cmbCategory_SelectedIndexChanged(object sender, EventArgs e)
+        private void cmbFilterCategory_SelectedIndexChanged(object sender, EventArgs e)
         {
             ApplySearch();
         }
