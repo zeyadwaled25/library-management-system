@@ -7,9 +7,7 @@ namespace LibraryManagementSystem
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
-            {
                 components.Dispose();
-            }
             base.Dispose(disposing);
         }
 
@@ -17,7 +15,7 @@ namespace LibraryManagementSystem
 
         private void InitializeComponent()
         {
-            txtSearchMember = new Button();
+            dgvMembers = new DataGridView();
             grpMemberDetails = new GroupBox();
             txtFullName = new TextBox();
             txtPhone = new TextBox();
@@ -26,86 +24,90 @@ namespace LibraryManagementSystem
             btnUpdate = new Button();
             btnDelete = new Button();
             btnClear = new Button();
-            dataGridView1 = new DataGridView();
+            txtSearch = new TextBox();
+            lblSearch = new Label();
 
+            ((System.ComponentModel.ISupportInitialize)dgvMembers).BeginInit();
             grpMemberDetails.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             SuspendLayout();
 
-           
-            dataGridView1.Location = new System.Drawing.Point(20, 20);
-            dataGridView1.Size = new System.Drawing.Size(760, 250);
-            dataGridView1.Name = "dataGridView1";
-            dataGridView1.AutoGenerateColumns = true; 
-            dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dataGridView1.ReadOnly = true;
-            dataGridView1.MultiSelect = false;
-            dataGridView1.CellClick += dataGridView1_CellClick;
+            // dgvMembers
+            dgvMembers.Location = new Point(20, 60);
+            dgvMembers.Size = new Size(760, 240);
+            dgvMembers.ReadOnly = true;
+            dgvMembers.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvMembers.MultiSelect = false;
+            dgvMembers.AutoGenerateColumns = true;
+            dgvMembers.CellClick += dgvMembers_CellClick;
 
-           
-            grpMemberDetails.Location = new System.Drawing.Point(20, 280);
-            grpMemberDetails.Size = new System.Drawing.Size(760, 70);
+            // Search
+            lblSearch.Text = "Search:";
+            lblSearch.Location = new Point(20, 20);
+
+            txtSearch.Location = new Point(80, 17);
+            txtSearch.Size = new Size(250, 27);
+            txtSearch.TextChanged += txtSearch_TextChanged;
+
+            // grpMemberDetails
             grpMemberDetails.Text = "Member Details";
-            grpMemberDetails.Controls.Add(txtFullName);
-            grpMemberDetails.Controls.Add(txtPhone);
-            grpMemberDetails.Controls.Add(txtEmail);
+            grpMemberDetails.Location = new Point(20, 310);
+            grpMemberDetails.Size = new Size(760, 90);
 
-          
-            txtFullName.Location = new System.Drawing.Point(10, 30);
-            txtFullName.Size = new System.Drawing.Size(200, 27);
-            txtFullName.Name = "txtFullName";
+            txtFullName.PlaceholderText = "Full Name";
+            txtFullName.Location = new Point(20, 40);
+            txtFullName.Size = new Size(200, 27);
 
-           
-            txtPhone.Location = new System.Drawing.Point(220, 30);
-            txtPhone.Size = new System.Drawing.Size(150, 27);
-            txtPhone.Name = "txtPhone";
+            txtPhone.PlaceholderText = "Phone";
+            txtPhone.Location = new Point(240, 40);
+            txtPhone.Size = new Size(150, 27);
 
-            txtEmail.Location = new System.Drawing.Point(380, 30);
-            txtEmail.Size = new System.Drawing.Size(200, 27);
-            txtEmail.Name = "txtEmail";
+            txtEmail.PlaceholderText = "Email";
+            txtEmail.Location = new Point(410, 40);
+            txtEmail.Size = new Size(200, 27);
 
-           
-            btnAdd.Location = new System.Drawing.Point(100, 370);
-            btnAdd.Size = new System.Drawing.Size(80, 30);
+            grpMemberDetails.Controls.AddRange(new Control[]
+            {
+                txtFullName, txtPhone, txtEmail
+            });
+
+            // Buttons
             btnAdd.Text = "Add";
+            btnAdd.Location = new Point(120, 420);
             btnAdd.Click += btnAdd_Click;
 
-            btnUpdate.Location = new System.Drawing.Point(200, 370);
-            btnUpdate.Size = new System.Drawing.Size(80, 30);
             btnUpdate.Text = "Update";
+            btnUpdate.Location = new Point(220, 420);
             btnUpdate.Click += btnUpdate_Click;
 
-            btnDelete.Location = new System.Drawing.Point(300, 370);
-            btnDelete.Size = new System.Drawing.Size(80, 30);
             btnDelete.Text = "Delete";
+            btnDelete.Location = new Point(320, 420);
             btnDelete.Click += btnDelete_Click;
 
-            btnClear.Location = new System.Drawing.Point(400, 370);
-            btnClear.Size = new System.Drawing.Size(80, 30);
             btnClear.Text = "Clear";
+            btnClear.Location = new Point(420, 420);
             btnClear.Click += btnClear_Click;
 
-         
-            ClientSize = new System.Drawing.Size(800, 450);
-            Controls.Add(dataGridView1);
-            Controls.Add(grpMemberDetails);
-            Controls.Add(btnAdd);
-            Controls.Add(btnUpdate);
-            Controls.Add(btnDelete);
-            Controls.Add(btnClear);
-            Name = "MembersForm";
-            Text = "MembersForm";
+            // Form
+            ClientSize = new Size(800, 480);
+            Controls.AddRange(new Control[]
+            {
+                dgvMembers, grpMemberDetails,
+                btnAdd, btnUpdate, btnDelete, btnClear,
+                txtSearch, lblSearch
+            });
+
+            Text = "Members Management";
             Load += MembersForm_Load;
 
+            ((System.ComponentModel.ISupportInitialize)dgvMembers).EndInit();
             grpMemberDetails.ResumeLayout(false);
             grpMemberDetails.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)dataGridView1).EndInit();
             ResumeLayout(false);
         }
 
         #endregion
 
-        private Button txtSearchMember;
+        private DataGridView dgvMembers;
         private GroupBox grpMemberDetails;
         private TextBox txtFullName;
         private TextBox txtPhone;
@@ -114,6 +116,7 @@ namespace LibraryManagementSystem
         private Button btnUpdate;
         private Button btnDelete;
         private Button btnClear;
-        private DataGridView dataGridView1;
+        private TextBox txtSearch;
+        private Label lblSearch;
     }
 }

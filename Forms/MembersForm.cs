@@ -8,7 +8,7 @@ namespace LibraryManagementSystem
 {
     public partial class MembersForm : Form
     {
-        int memberId = 0;
+        private int selectedMemberId = 0;
 
         public MembersForm()
         {
@@ -22,142 +22,108 @@ namespace LibraryManagementSystem
 
         void LoadMembers()
         {
-            try
-            {
-                string query = "SELECT MemberID, FullName, Phone, Email FROM Members";
-                DataTable dt = DatabaseHelper.ExecuteSelect(query);
-                dataGridView1.DataSource = dt;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error loading members:\n" + ex.Message);
-            }
+            string query = "SELECT MemberID, FullName, Phone, Email FROM Members";
+            dgvMembers.DataSource = DatabaseHelper.ExecuteSelect(query);
         }
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtFullName.Text) ||
-                string.IsNullOrWhiteSpace(txtPhone.Text) ||
-                string.IsNullOrWhiteSpace(txtEmail.Text))
-            {
-                MessageBox.Show("Please fill all fields.");
-                return;
-            }
+            if (!ValidateInputs()) return;
 
-            string query =
-                "INSERT INTO Members (FullName, Phone, Email) VALUES (@FullName, @Phone, @Email)";
+            string query = @"
+                INSERT INTO Members (FullName, Phone, Email)
+                VALUES (@Name, @Phone, @Email)";
 
-            SqlParameter[] parameters =
+            SqlParameter[] p =
             {
-                new SqlParameter("@FullName", SqlDbType.NVarChar, 100) { Value = txtFullName.Text },
-                new SqlParameter("@Phone", SqlDbType.NVarChar, 20) { Value = txtPhone.Text },
-                new SqlParameter("@Email", SqlDbType.NVarChar, 50) { Value = txtEmail.Text }
+                new("@Name", txtFullName.Text),
+                new("@Phone", txtPhone.Text),
+                new("@Email", txtEmail.Text)
             };
 
-            try
-            {
-                int rows = DatabaseHelper.ExecuteNonQuery(query, parameters);
-
-                if (rows > 0)
-                {
-                    MessageBox.Show("Member added successfully!");
-                    LoadMembers();
-                    ClearFields();
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error adding member:\n" + ex.Message);
-            }
+            DatabaseHelper.ExecuteNonQuery(query, p);
+            LoadMembers();
+            ClearFields();
         }
 
-      
         private void btnUpdate_Click(object sender, EventArgs e)
         {
-            if (memberId == 0)
-            {
-                MessageBox.Show("Please select a member first.");
-                return;
-            }
+            if (selectedMemberId == 0) return;
 
-            string query =
-                @"UPDATE Members 
-                  SET FullName=@FullName, Phone=@Phone, Email=@Email
-                  WHERE MemberID=@id";
+            string query = @"
+                UPDATE Members
+                SET FullName=@Name, Phone=@Phone, Email=@Email
+                WHERE MemberID=@Id";
 
-            SqlParameter[] parameters =
+            SqlParameter[] p =
             {
-                new SqlParameter("@FullName", SqlDbType.NVarChar, 100) { Value = txtFullName.Text },
-                new SqlParameter("@Phone", SqlDbType.NVarChar, 20) { Value = txtPhone.Text },
-                new SqlParameter("@Email", SqlDbType.NVarChar, 50) { Value = txtEmail.Text },
-                new SqlParameter("@id", SqlDbType.Int) { Value = memberId }
+                new("@Name", txtFullName.Text),
+                new("@Phone", txtPhone.Text),
+                new("@Email", txtEmail.Text),
+                new("@Id", selectedMemberId)
             };
 
-            try
-            {
-                DatabaseHelper.ExecuteNonQuery(query, parameters);
-                LoadMembers();
-                ClearFields();
-                MessageBox.Show("Member updated successfully!");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error updating member:\n" + ex.Message);
-            }
+            DatabaseHelper.ExecuteNonQuery(query, p);
+            LoadMembers();
+            ClearFields();
         }
 
-       
         private void btnDelete_Click(object sender, EventArgs e)
         {
-            if (memberId == 0)
-            {
-                MessageBox.Show("Please select a member first.");
-                return;
-            }
+            if (selectedMemberId == 0) return;
 
-            string query = "DELETE FROM Members WHERE MemberID=@id";
+            string query = "DELETE FROM Members WHERE MemberID=@Id";
+            SqlParameter[] p = { new("@Id", selectedMemberId) };
 
-            SqlParameter[] parameters =
-            {
-                new SqlParameter("@id", SqlDbType.Int) { Value = memberId }
-            };
-
-            try
-            {
-                DatabaseHelper.ExecuteNonQuery(query, parameters);
-                LoadMembers();
-                ClearFields();
-                MessageBox.Show("Member deleted successfully!");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error deleting member:\n" + ex.Message);
-            }
+            DatabaseHelper.ExecuteNonQuery(query, p);
+            LoadMembers();
+            ClearFields();
         }
 
-     
-        private void dataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
+        private void dgvMembers_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0) return;
 
-            memberId = Convert.ToInt32(dataGridView1.Rows[e.RowIndex].Cells["MemberID"].Value);
-            txtFullName.Text = dataGridView1.Rows[e.RowIndex].Cells["FullName"].Value.ToString();
-            txtPhone.Text = dataGridView1.Rows[e.RowIndex].Cells["Phone"].Value.ToString();
-            txtEmail.Text = dataGridView1.Rows[e.RowIndex].Cells["Email"].Value.ToString();
+            var row = dgvMembers.Rows[e.RowIndex];
+            selectedMemberId = Convert.ToInt32(row.Cells["MemberID"].Value);
+
+            txtFullName.Text = row.Cells["FullName"].Value.ToString();
+            txtPhone.Text = row.Cells["Phone"].Value.ToString();
+            txtEmail.Text = row.Cells["Email"].Value.ToString();
         }
 
-     
-        void ClearFields()
+        private void txtSearch_TextChanged(object sender, EventArgs e)
         {
-            txtFullName.Clear();
-            txtPhone.Clear();
-            txtEmail.Clear();
-            memberId = 0;
+            DataTable dt = dgvMembers.DataSource as DataTable;
+            if (dt == null) return;
+
+            dt.DefaultView.RowFilter =
+                $"FullName LIKE '%{txtSearch.Text}%' OR Phone LIKE '%{txtSearch.Text}%'";
         }
 
         private void btnClear_Click(object sender, EventArgs e)
         {
             ClearFields();
+        }
+
+        void ClearFields()
+        {
+            selectedMemberId = 0;
+            txtFullName.Clear();
+            txtPhone.Clear();
+            txtEmail.Clear();
+        }
+
+        bool ValidateInputs()
+        {
+            if (string.IsNullOrWhiteSpace(txtFullName.Text) ||
+                string.IsNullOrWhiteSpace(txtPhone.Text) ||
+                string.IsNullOrWhiteSpace(txtEmail.Text))
+            {
+                MessageBox.Show("Please fill all fields");
+                return false;
+            }
+            return true;
         }
     }
 }
