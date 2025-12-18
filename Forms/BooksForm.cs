@@ -17,15 +17,6 @@ namespace LibraryManagementSystem
         {
             InitializeComponent();
             _repository = new BookRepository();
-
-            this.btnAdd.Click += new EventHandler(this.btnAdd_Click);
-            this.btnUpdate.Click += new EventHandler(this.btnUpdate_Click);
-            this.btnDelete.Click += new EventHandler(this.btnDelete_Click);
-            this.btnClear.Click += new EventHandler(this.btnClear_Click);
-            this.btnSearch.Click += new EventHandler(this.btnSearch_Click);
-            this.txtSearch.TextChanged += new EventHandler(this.txtSearch_TextChanged);
-            this.cmbCategory.SelectedIndexChanged += new EventHandler(this.cmbCategory_SelectedIndexChanged);
-            this.dgvBooks.CellClick += new DataGridViewCellEventHandler(this.dgvBooks_CellClick);
         }
 
         private async void BooksForm_Load(object sender, EventArgs e)
@@ -33,7 +24,6 @@ namespace LibraryManagementSystem
             try
             {
                 dgvBooks.AutoGenerateColumns = false;
-
                 if (dgvBooks.Columns["BookId"] != null) dgvBooks.Columns["BookId"].DataPropertyName = "BookID";
                 if (dgvBooks.Columns["Title"] != null) dgvBooks.Columns["Title"].DataPropertyName = "Title";
                 if (dgvBooks.Columns["Author"] != null) dgvBooks.Columns["Author"].DataPropertyName = "Author";
@@ -57,9 +47,35 @@ namespace LibraryManagementSystem
 
         private async void btnAdd_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtTitle.Text) || cmbCategory.SelectedIndex == -1)
+            if (string.IsNullOrWhiteSpace(txtTitle.Text))
             {
-                MessageBox.Show("Please enter Title and select Category.");
+                MessageBox.Show("Please enter Title.");
+                return;
+            }
+
+            int categoryId = -1;
+
+            if (cmbCategory.SelectedIndex != -1)
+            {
+                categoryId = (int)cmbCategory.SelectedValue;
+            }
+            else if (!string.IsNullOrWhiteSpace(cmbCategory.Text))
+            {
+                string typedText = cmbCategory.Text.Trim();
+                foreach (var item in cmbCategory.Items)
+                {
+                    dynamic category = item;
+                    if (category.Name.Equals(typedText, StringComparison.OrdinalIgnoreCase))
+                    {
+                        categoryId = category.ID;
+                        break;
+                    }
+                }
+            }
+
+            if (categoryId == -1)
+            {
+                MessageBox.Show("Category not found!");
                 return;
             }
 
@@ -67,7 +83,7 @@ namespace LibraryManagementSystem
             {
                 Title = txtTitle.Text.Trim(),
                 Author = txtAuthor.Text.Trim(),
-                CategoryID = (int)cmbCategory.SelectedValue,
+                CategoryID = categoryId,
                 Quantity = int.TryParse(numQuantity.Text, out int q) ? q : 0
             };
 
@@ -97,12 +113,37 @@ namespace LibraryManagementSystem
                 return;
             }
 
+            int categoryId = -1;
+            if (cmbCategory.SelectedIndex != -1)
+            {
+                categoryId = (int)cmbCategory.SelectedValue;
+            }
+            else if (!string.IsNullOrWhiteSpace(cmbCategory.Text))
+            {
+                string typedText = cmbCategory.Text.Trim();
+                foreach (var item in cmbCategory.Items)
+                {
+                    dynamic category = item;
+                    if (category.Name.Equals(typedText, StringComparison.OrdinalIgnoreCase))
+                    {
+                        categoryId = category.ID;
+                        break;
+                    }
+                }
+            }
+
+            if (categoryId == -1)
+            {
+                MessageBox.Show("Category not found.");
+                return;
+            }
+
             var bookToUpdate = new Book
             {
                 BookID = _selectedBookId,
                 Title = txtTitle.Text.Trim(),
                 Author = txtAuthor.Text.Trim(),
-                CategoryID = (int)cmbCategory.SelectedValue,
+                CategoryID = categoryId,
                 Quantity = int.TryParse(numQuantity.Text, out int q) ? q : 0
             };
 
@@ -155,25 +196,42 @@ namespace LibraryManagementSystem
 
         private void dgvBooks_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex >= 0)
+            try
             {
+                if (e.RowIndex < 0 || e.RowIndex >= dgvBooks.Rows.Count) return;
+
                 DataGridViewRow row = dgvBooks.Rows[e.RowIndex];
 
-                if (row.Cells["BookId"].Value != null && row.Cells["BookId"].Value != DBNull.Value)
+                if (dgvBooks.Columns.Contains("BookId") && row.Cells["BookId"].Value != null)
                 {
-                    _selectedBookId = Convert.ToInt32(row.Cells["BookId"].Value);
+                    if (int.TryParse(row.Cells["BookId"].Value.ToString(), out int id))
+                    {
+                        _selectedBookId = id;
+                    }
                 }
 
-                txtTitle.Text = row.Cells["Title"].Value?.ToString();
-                txtAuthor.Text = row.Cells["Author"].Value?.ToString();
-                numQuantity.Text = row.Cells["Quantity"].Value?.ToString();
+                if (dgvBooks.Columns.Contains("Title"))
+                    txtTitle.Text = row.Cells["Title"].Value?.ToString();
 
-                string categoryName = row.Cells["Category"].Value?.ToString();
-                cmbCategory.Text = categoryName;
+                if (dgvBooks.Columns.Contains("Author"))
+                    txtAuthor.Text = row.Cells["Author"].Value?.ToString();
+
+                if (dgvBooks.Columns.Contains("Quantity"))
+                    numQuantity.Text = row.Cells["Quantity"].Value?.ToString();
+
+                if (dgvBooks.Columns.Contains("Category"))
+                {
+                    string categoryName = row.Cells["Category"].Value?.ToString();
+                    cmbCategory.Text = categoryName;
+                }
 
                 btnAdd.Enabled = false;
                 btnUpdate.Enabled = true;
                 btnDelete.Enabled = true;
+            }
+            catch
+            {
+                // Ignore safe errors
             }
         }
 
