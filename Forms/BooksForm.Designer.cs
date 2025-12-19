@@ -78,7 +78,7 @@
             // 
             cmbFilterCategory.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbFilterCategory.FormattingEnabled = true;
-            cmbFilterCategory.Location = new Point(550, 14);
+            cmbFilterCategory.Location = new Point(688, 15);
             cmbFilterCategory.Name = "cmbFilterCategory";
             cmbFilterCategory.Size = new Size(200, 28);
             cmbFilterCategory.TabIndex = 3;
@@ -86,9 +86,9 @@
             // lblFilterCategory
             // 
             lblFilterCategory.AutoSize = true;
-            lblFilterCategory.Location = new Point(420, 18);
+            lblFilterCategory.Location = new Point(558, 19);
             lblFilterCategory.Name = "lblFilterCategory";
-            lblFilterCategory.Size = new Size(125, 20);
+            lblFilterCategory.Size = new Size(129, 20);
             lblFilterCategory.TabIndex = 2;
             lblFilterCategory.Text = "Filter by Category:";
             // 
