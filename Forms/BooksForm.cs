@@ -1,0 +1,329 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using LibraryManagementSystem.Models;
+using LibraryManagementSystem.Repositories;
+
+namespace LibraryManagementSystem
+{
+    public partial class BooksForm : Form
+    {
+        private readonly BookRepository _repository;
+        private int _selectedBookId = 0;
+
+        public BooksForm()
+        {
+            InitializeComponent();
+            _repository = new BookRepository();
+        }
+
+        private async void BooksForm_Load(object sender, EventArgs e)
+        {
+            try
+            {
+                dgvBooks.AutoGenerateColumns = false;
+                if (dgvBooks.Columns["BookId"] != null) dgvBooks.Columns["BookId"].DataPropertyName = "BookID";
+                if (dgvBooks.Columns["Title"] != null) dgvBooks.Columns["Title"].DataPropertyName = "Title";
+                if (dgvBooks.Columns["Author"] != null) dgvBooks.Columns["Author"].DataPropertyName = "Author";
+                if (dgvBooks.Columns["Category"] != null) dgvBooks.Columns["Category"].DataPropertyName = "Category";
+                if (dgvBooks.Columns["Quantity"] != null) dgvBooks.Columns["Quantity"].DataPropertyName = "Quantity";
+
+                var categories = await _repository.GetCategoriesAsync();
+
+                cmbCategory.DataSource = categories;
+                cmbCategory.DisplayMember = "Name";
+                cmbCategory.ValueMember = "ID";
+                cmbCategory.SelectedIndex = -1;
+
+                await RefreshBooksGrid();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private async void btnAdd_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtTitle.Text))
+            {
+                MessageBox.Show("Please enter Title.");
+                return;
+            }
+
+            int categoryId = -1;
+
+            if (cmbCategory.SelectedIndex != -1)
+            {
+                categoryId = (int)cmbCategory.SelectedValue;
+            }
+            else if (!string.IsNullOrWhiteSpace(cmbCategory.Text))
+            {
+                string typedText = cmbCategory.Text.Trim();
+                foreach (var item in cmbCategory.Items)
+                {
+                    dynamic category = item;
+                    if (category.Name.Equals(typedText, StringComparison.OrdinalIgnoreCase))
+                    {
+                        categoryId = category.ID;
+                        break;
+                    }
+                }
+            }
+
+            if (categoryId == -1)
+            {
+                MessageBox.Show("Category not found!");
+                return;
+            }
+
+            var newBook = new Book
+            {
+                Title = txtTitle.Text.Trim(),
+                Author = txtAuthor.Text.Trim(),
+                CategoryID = categoryId,
+                Quantity = int.TryParse(numQuantity.Text, out int q) ? q : 0
+            };
+
+            try
+            {
+                btnAdd.Enabled = false;
+                await _repository.AddBookAsync(newBook);
+                MessageBox.Show("Saved Successfully!");
+                ClearFields();
+                await RefreshBooksGrid();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                btnAdd.Enabled = true;
+            }
+        }
+
+        private async void btnUpdate_Click(object sender, EventArgs e)
+        {
+            if (_selectedBookId == 0)
+            {
+                MessageBox.Show("Please select a book to update.");
+                return;
+            }
+
+            int categoryId = -1;
+            if (cmbCategory.SelectedIndex != -1)
+            {
+                categoryId = (int)cmbCategory.SelectedValue;
+            }
+            else if (!string.IsNullOrWhiteSpace(cmbCategory.Text))
+            {
+                string typedText = cmbCategory.Text.Trim();
+                foreach (var item in cmbCategory.Items)
+                {
+                    dynamic category = item;
+                    if (category.Name.Equals(typedText, StringComparison.OrdinalIgnoreCase))
+                    {
+                        categoryId = category.ID;
+                        break;
+                    }
+                }
+            }
+
+            if (categoryId == -1)
+            {
+                MessageBox.Show("Category not found.");
+                return;
+            }
+
+            var bookToUpdate = new Book
+            {
+                BookID = _selectedBookId,
+                Title = txtTitle.Text.Trim(),
+                Author = txtAuthor.Text.Trim(),
+                CategoryID = categoryId,
+                Quantity = int.TryParse(numQuantity.Text, out int q) ? q : 0
+            };
+
+            try
+            {
+                btnUpdate.Enabled = false;
+                await _repository.UpdateBookAsync(bookToUpdate);
+                MessageBox.Show("Updated Successfully!");
+                ClearFields();
+                await RefreshBooksGrid();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                btnUpdate.Enabled = true;
+            }
+        }
+
+        private async void btnDelete_Click(object sender, EventArgs e)
+        {
+            if (_selectedBookId == 0)
+            {
+                MessageBox.Show("Please select a book to delete.");
+                return;
+            }
+
+            var confirm = MessageBox.Show("Are you sure you want to delete this book?", "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (confirm == DialogResult.No) return;
+
+            try
+            {
+                btnDelete.Enabled = false;
+                await _repository.DeleteBookAsync(_selectedBookId);
+                MessageBox.Show("Deleted Successfully!");
+                ClearFields();
+                await RefreshBooksGrid();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                btnDelete.Enabled = true;
+            }
+        }
+
+        private void dgvBooks_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            try
+            {
+                if (e.RowIndex < 0 || e.RowIndex >= dgvBooks.Rows.Count) return;
+
+                DataGridViewRow row = dgvBooks.Rows[e.RowIndex];
+
+                if (dgvBooks.Columns.Contains("BookId") && row.Cells["BookId"].Value != null)
+                {
+                    if (int.TryParse(row.Cells["BookId"].Value.ToString(), out int id))
+                    {
+                        _selectedBookId = id;
+                    }
+                }
+
+                if (dgvBooks.Columns.Contains("Title"))
+                    txtTitle.Text = row.Cells["Title"].Value?.ToString();
+
+                if (dgvBooks.Columns.Contains("Author"))
+                    txtAuthor.Text = row.Cells["Author"].Value?.ToString();
+
+                if (dgvBooks.Columns.Contains("Quantity"))
+                    numQuantity.Text = row.Cells["Quantity"].Value?.ToString();
+
+                if (dgvBooks.Columns.Contains("Category"))
+                {
+                    string categoryName = row.Cells["Category"].Value?.ToString();
+                    cmbCategory.Text = categoryName;
+                }
+
+                btnAdd.Enabled = false;
+                btnUpdate.Enabled = true;
+                btnDelete.Enabled = true;
+            }
+            catch
+            {
+                // Ignore safe errors
+            }
+        }
+
+        private void btnClear_Click(object sender, EventArgs e)
+        {
+            ClearFields();
+            txtSearch.Clear();
+            cmbCategory.SelectedIndex = -1;
+            ApplySearch();
+        }
+
+        private void txtSearch_TextChanged(object sender, EventArgs e)
+        {
+            ApplySearch();
+        }
+
+        private void cmbCategory_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ApplySearch();
+        }
+
+        private void btnSearch_Click(object sender, EventArgs e)
+        {
+            ApplySearch();
+        }
+
+        private void ApplySearch()
+        {
+            var dt = dgvBooks.DataSource as DataTable;
+            if (dt == null) return;
+
+            string textSearch = txtSearch.Text.Trim();
+
+            string selectedCategory = "";
+            if (cmbCategory.SelectedIndex != -1 && cmbCategory.SelectedItem != null)
+            {
+                try
+                {
+                    dynamic categoryItem = cmbCategory.SelectedItem;
+                    selectedCategory = categoryItem.Name;
+                }
+                catch
+                {
+                    selectedCategory = cmbCategory.Text;
+                }
+            }
+
+            List<string> filters = new List<string>();
+
+            if (!string.IsNullOrEmpty(textSearch))
+            {
+                textSearch = textSearch.Replace("'", "''");
+                filters.Add(string.Format("(Title LIKE '%{0}%' OR Author LIKE '%{0}%')", textSearch));
+            }
+
+            if (!string.IsNullOrEmpty(selectedCategory))
+            {
+                filters.Add(string.Format("Category LIKE '{0}%'", selectedCategory));
+            }
+
+            if (filters.Count > 0)
+            {
+                dt.DefaultView.RowFilter = string.Join(" AND ", filters);
+            }
+            else
+            {
+                dt.DefaultView.RowFilter = string.Empty;
+            }
+        }
+
+        private async Task RefreshBooksGrid()
+        {
+            var dt = await _repository.GetAllBooksAsync();
+            dgvBooks.DataSource = dt;
+            ApplySearch();
+        }
+
+        private void ClearFields()
+        {
+            _selectedBookId = 0;
+            txtTitle.Clear();
+            txtAuthor.Clear();
+            numQuantity.Clear();
+            cmbCategory.SelectedIndex = -1;
+            btnAdd.Enabled = true;
+            btnUpdate.Enabled = false;
+            btnDelete.Enabled = false;
+            txtTitle.Focus();
+        }
+
+        private void dgvBooks_CellContentClick(object sender, DataGridViewCellEventArgs e) { }
+        private void grpBookDetails_Enter(object sender, EventArgs e) { }
+        private void txtTitle_TextChanged(object sender, EventArgs e) { }
+    }
+}
